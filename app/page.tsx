@@ -1,17 +1,101 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
+
+  useEffect(() => {
+    // Get debug info from window
+    const info = (window as any).__APP_DEBUG__;
+    setDebugInfo(info);
+
+    // Test API endpoint
+    fetch('/api/analyze')
+      .then(res => res.json())
+      .then(data => setApiResponse(data))
+      .catch(err => console.error('API Error:', err));
+  }, []);
+
+  const sendAnalysis = async () => {
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          performance: debugInfo?.performance,
+          timestamp: new Date().toISOString(),
+          userAction: 'manual_analysis'
+        })
+      });
+      const data = await response.json();
+      setApiResponse(data);
+      console.log('📤 Analysis sent:', data);
+    } catch (error) {
+      console.error('Failed to send analysis:', error);
+    }
+  };
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
+        <div className="flex items-center gap-4">
+          <Image
+            className="dark:invert"
+            src="/next.svg"
+            alt="Next.js logo"
+            width={180}
+            height={38}
+            priority
+          />
+          <span className="text-2xl font-bold text-blue-600">+ Chrome DevTools</span>
+        </div>
+        
+        {/* Debug Panel */}
+        <div className="w-full max-w-2xl p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <h2 className="text-lg font-bold mb-3">🔍 Debug Information</h2>
+          
+          {debugInfo ? (
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Page Load Time:</span>
+                <span className="font-mono">{debugInfo.performance?.loadTime || 'N/A'}ms</span>
+              </div>
+              <div className="flex justify-between">
+                <span>DOM Ready:</span>
+                <span className="font-mono">{debugInfo.performance?.domReady || 'N/A'}ms</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Resources Loaded:</span>
+                <span className="font-mono">{debugInfo.performance?.resources || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Dark Mode:</span>
+                <span className="font-mono">{debugInfo.features?.darkMode ? 'Enabled' : 'Disabled'}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500">Loading debug information...</p>
+          )}
+          
+          <button
+            onClick={sendAnalysis}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Send Analysis to API
+          </button>
+          
+          {apiResponse && (
+            <div className="mt-4 p-3 bg-green-100 dark:bg-green-900 rounded text-sm">
+              <p className="font-semibold">✅ API Response:</p>
+              <pre className="mt-2 text-xs overflow-auto">
+                {JSON.stringify(apiResponse, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}

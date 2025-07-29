@@ -1,0 +1,23 @@
+{
+  "name": "jonathon-first-app",
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "env": {
+    "NEXT_PUBLIC_APP_NAME": "Jonathon's First App",
+    "NEXT_PUBLIC_DEBUG_MODE": "false"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
