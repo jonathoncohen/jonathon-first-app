@@ -1,0 +1,14 @@
+{
+  "version": "1.1.0",
+  "features": {
+    "debugPanel": true,
+    "jokeGenerator": true,
+    "chromeDevTools": true
+  },
+  "lastUpdated": "2025-07-29T19:34:00Z",
+  "changelog": [
+    "Added programming joke generator",
+    "15 programming jokes available",
+    "Blue-themed UI component"
+  ]
+}
