@@ -20,13 +20,31 @@ interface DebugInfo {
 
 interface ApiResponse {
   success?: boolean;
-  analysis?: any;
+  analysis?: {
+    timestamp: string;
+    received: unknown;
+    metrics: {
+      performance: {
+        serverResponseTime: number;
+        processingTime: number;
+      };
+      browser: string | null;
+      method: string;
+    };
+    recommendations: string[];
+  };
   message?: string;
   status?: string;
   endpoint?: string;
   methods?: string[];
   description?: string;
-  example?: any;
+  example?: {
+    performance?: {
+      loadTime?: number;
+      resources?: number;
+    };
+    userAction?: string;
+  };
 }
 
 export default function Home() {
