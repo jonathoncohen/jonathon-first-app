@@ -3,14 +3,40 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+interface DebugInfo {
+  performance?: {
+    loadTime?: number;
+    domReady?: number;
+    resources?: number;
+  };
+  timestamp?: string;
+  environment?: string;
+  features?: {
+    tailwind?: boolean;
+    typescript?: boolean;
+    darkMode?: boolean;
+  };
+}
+
+interface ApiResponse {
+  success?: boolean;
+  analysis?: any;
+  message?: string;
+  status?: string;
+  endpoint?: string;
+  methods?: string[];
+  description?: string;
+  example?: any;
+}
+
 export default function Home() {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
-  const [apiResponse, setApiResponse] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
+  const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
 
   useEffect(() => {
     // Get debug info from window
-    const info = (window as any).__APP_DEBUG__;
-    setDebugInfo(info);
+    const info = (window as Window & { __APP_DEBUG__?: DebugInfo }).__APP_DEBUG__;
+    setDebugInfo(info || null);
 
     // Test API endpoint
     fetch('/api/analyze')
