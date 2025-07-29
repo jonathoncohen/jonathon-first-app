@@ -50,6 +50,8 @@ interface ApiResponse {
 export default function Home() {
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [apiResponse, setApiResponse] = useState<ApiResponse | null>(null);
+  const [joke, setJoke] = useState<string>('');
+  const [isLoadingJoke, setIsLoadingJoke] = useState(false);
 
   useEffect(() => {
     // Get debug info from window
@@ -79,6 +81,35 @@ export default function Home() {
       console.log('📤 Analysis sent:', data);
     } catch (error) {
       console.error('Failed to send analysis:', error);
+    }
+  };
+
+  const generateJoke = async () => {
+    setIsLoadingJoke(true);
+    setJoke(''); // Clear previous joke
+    
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: 'Tell me a funny programming joke'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setJoke(data.response);
+        console.log('😄 Joke generated:', data);
+      } else {
+        setJoke('Oops! The joke generator is taking a coffee break. Try again!');
+      }
+    } catch (error) {
+      console.error('Failed to generate joke:', error);
+      setJoke('Error: Could not reach the joke generator. Is it debugging itself?');
+    } finally {
+      setIsLoadingJoke(false);
     }
   };
 
@@ -140,6 +171,41 @@ export default function Home() {
             </div>
           )}
         </div>
+        
+        {/* Joke Generator */}
+        <div className="w-full max-w-2xl p-6 rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
+          <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span className="text-2xl">😄</span>
+            Programming Joke Generator
+          </h2>
+          
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Click the button below to generate a random programming joke!
+          </p>
+          
+          <button
+            onClick={generateJoke}
+            disabled={isLoadingJoke}
+            className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {isLoadingJoke ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin">⚡</span>
+                Generating...
+              </span>
+            ) : (
+              'Generate Joke 🎲'
+            )}
+          </button>
+          
+          {joke && (
+            <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner">
+              <p className="text-lg leading-relaxed">{joke}</p>
+              <p className="text-xs text-gray-500 mt-3">Generated at {new Date().toLocaleTimeString()}</p>
+            </div>
+          )}
+        </div>
+        
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
